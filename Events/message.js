@@ -1,6 +1,6 @@
 module.exports = (client, message) => {
 
-    if (message.author.bot) return;
+    if (message.author.bot || message.channel.type != 'text') return;
 
     const settings = client.config;
 
@@ -13,5 +13,10 @@ module.exports = (client, message) => {
 
     if (!cmd) return false;
 
-    cmd.run(client, message, args, level = 10);
+    message.delete().then((message) => {
+        
+        message.channel.startTyping();
+        cmd.run(client, message, args, level = 10);
+        message.channel.stopTyping();
+    });
 };

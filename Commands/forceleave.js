@@ -1,21 +1,25 @@
 exports.run = async (client, message, args, level) => {
 
-    client.voiceConnection.forEach((c) => {
+    if (level >= 10) {
         
-        c.disconnect();
-    });
+        client.voiceConnection.forEach((c) => {
+        
+            c.disconnect();
+            c.leave();
+        });
+    }
 };
 
 exports.conf = {
 
     enabled: true,
-    aliases: []
+    aliases: ['fl']
 };
 
 exports.help = {
 
-    name: "",
-    catergory: "",
-    description: "",
+    name: "forceleave",
+    catergory: "admin",
+    description: "Forces the bot to close voice connections and leave",
     usage: ""
 };

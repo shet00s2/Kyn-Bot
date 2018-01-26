@@ -3,8 +3,23 @@ exports.run = async (client, message, args, level) => {
     if (!args[0]) {
 
         const commands = client.commands;
+        const fields = [];
+        
+        commands.forEach((command) => {
 
-        //const commandNames = commands.keyArray)_;''
+            fields.push(client.blankField);
+            fields.push({
+                "name": command.help.name,
+                "value": `${command.help.description} \n`
+            });
+        });
+
+        message.channel.send({
+            embed: {
+                "title": "List of Commands",
+                "fields": fields
+            }
+        });
 
     } else {
 

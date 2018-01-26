@@ -39,6 +39,51 @@ exports.run = async (client, message, args, level) => {
         });
     };
 
+    const queuePlay = (url) => {
+
+        if (client.audio.dispatcher == null) {
+                    
+            client.audio.channel.voice.join().then((c) => {
+
+                client.audio.connection = c;
+                playSong(url);
+                client.audio.dispatcher.on('end', (reason) => {
+
+                    if (reason === 'skip') {
+                        
+                        let next = client.audio.playlist.shift()[1];
+                        if (typeof(next) === undefined) client.audio.dispatcher.end();
+                        else playSong(next);
+                    }
+
+                    else {
+
+                        client.audio.voiceConnections.forEach((c) => {
+
+                            c.disconnect();
+                            c.leave();
+                            client.audio.dispatcher = undefined;
+                        });
+                    }
+                });
+            });
+        }
+                
+        else {
+
+            ytdl.getInfo(url, (error, info) => {
+
+                if (error) console.error(error);
+                client.audio.playlist.push([info.title, url]);
+                message.channel.send({
+                    "embed": {
+                        "title": `Queued ${info.title}`
+                    }
+                })
+            });
+        }
+    };
+
     switch (args[0]) {
         
         case 'play':
@@ -54,48 +99,43 @@ exports.run = async (client, message, args, level) => {
 
             const url = args[1];
 
-            if (ytdl.validateURL(url)) {
+            if (args.length === 2) {
 
-                if (client.audio.dispatcher == null) {
+                queuePlay(url);
+            }
+
+            else {
+
+                const query = args.slice(1).join('');
+                const options = {
+
+                    url: `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${query}&type=video&videoCategoryId=10&key=${client.config.google.apikey}`,
+                    json: true
+                }
+
+                //search for music
+                client.request(options, (error, response, body) => {
+
+                    if (error) {
+
+                        console.log(options.url);
+                        console.error(error);
+                    }
                     
-                    client.audio.channel.voice.join().then((c) => {
+                    if (body.error) {
 
-                        client.audio.connection = c;
-                        playSong(url);
-                        client.audio.dispatcher.on('end', (reason) => {
+                        message.channel.send(`${body.error.code}: ${body.error.message}`);
+                    }
 
-                            if (reason === 'skip') {
-                                
-                                let next = client.audio.playlist.shift()[1];
-                                if (typeof(next) === undefined) client.audio.dispatcher.end();
-                                else playSong(next);
-                            }
+                    else {
 
-                            else {
+                        const item = body.items[0];
+                        const url = `https://www.youtube.com/watch?v=${item.id.videoId}`;
 
-                                client.audio.voiceConnections.forEach((c) => {
+                        queuePlay(url);
 
-                                    c.disconnect();
-                                    client.audio.dispatcher = undefined;
-                                });
-                            }
-                        });
-                    });
-                }
-                        
-                else {
-
-                    ytdl.getInfo(url, (error, info) => {
-
-                        if (error) console.error(error);
-                        client.audio.playlist.push([info.title, url]);
-                        message.channel.send({
-                            "embed": {
-                                "title": `Queued ${info.title}`
-                            }
-                        })
-                    });
-                }
+                    }
+                });
             }
 
             break;
@@ -120,6 +160,7 @@ exports.run = async (client, message, args, level) => {
                     }
                 }
             });
+            break;
 
         case 'resume':
             
@@ -136,10 +177,16 @@ exports.run = async (client, message, args, level) => {
             client.voiceConnections.forEach((c) => {
 
                 c.disconnect();
+                c.leave();
                 client.audio.playlist = [];
                 message.channel.send("Music Stopped");
             });
             break;
+
+        default: {
+
+            break;
+        }
     }
 };
 
@@ -156,6 +203,8 @@ exports.init = (client) => {
         playlist: [],
         stream: null,
     }
+
+    if (!client.request) client.request = require('request');
 }
 
 exports.conf = {
@@ -169,6 +218,6 @@ exports.help = {
 
     name: "music",
     catergory: "music",
-    description: "",
+    description: "Musical commands",
     usage: ""
 };

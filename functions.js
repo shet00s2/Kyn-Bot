@@ -33,4 +33,12 @@ module.exports = (client) => {
 
         return `${hours}:${minutes}:${seconds}`;
     }
+
+    client.blankField = () => {
+
+        return (fields.push({
+            "name": `\u200b`,
+            "value": `\u200b`
+        }));
+    }
 };
