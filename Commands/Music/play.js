@@ -1,5 +1,28 @@
 exports.run = async (client, message, args, level) => {
 
+    const playSong = (connection) => {
+
+        client.audio.connection = connection;
+        let playing = client.audio.playlist.shift()
+        client.audio.stream = client.lib.youtube(playing.url, {filter: 'audioonly'});
+        client.audio.dispatcher = client.audio.connection.playStream(client.audio.stream);
+
+        client.audio.stream.name = playing.title;
+
+        client.audio.channel.text.send({
+            "embed": {
+                "title": `Now Playing ${playing.title}`,
+                "footer": {
+                    "text": `Length: ${playing.length}`
+                },
+                "image": {
+                    "url": playing.thumbnail
+                },
+                "url": playing.url
+            }
+        });
+    }
+
     if (!args[0]) {
 
         message.channel.send(`Please enter a URL or search term`);
@@ -46,32 +69,51 @@ exports.run = async (client, message, args, level) => {
         //If the dispatcher is null, join the room and begin playing
         client.audio.channel.audio.join().then((connection) => {
             
-            client.audio.connection = connection;
-            client.audio.stream = client.lib.youtube(client.audio.playlist.shift().url, {filter: 'audioonly'});
-            client.audio.dispatcher = client.audio.connection.playStream(client.audio.stream);
-            
+            playSong(connection);
+
             client.audio.dispatcher.on('end', (reason) => {
     
                 switch(reason) {
     
                     case 'skip':
     
-                        if (client.audio.playlist[1] === undefined) client.audio.dispatcher.end();
-                        else playSong()
+                        if (client.audio.playlist[0] === undefined) {
+
+                            //[BUG] Doesnt always seem to work
+
+                            console.log('here');
+                            client.audio.channel.audio.leave();
+                            client.audio.dispatcher.end()
+                            client.audio.playlist = [];
+                        }
+                        else playSong(connection)
                         break;
                     
                     case 'stop': 
 
-                        client.audio.channel.audio.leave();                        
+                        client.audio.channel.audio.leave();
+                        client.audio.channel.text.send(`Music stopped.`);
+                        client.audio.playlist = [];
                         break;
 
                     default:
 
                         client.audio.channel.audio.leave();
+                        client.audio.playlist = [];
                         break;
                 }
             });
         });
+    }
+
+    else {
+
+        //Client is alreadying playing something post a message saying you've queued it
+        message.channel.send({
+            "embed": {
+                "title": `Queued ${song.title}`
+            }
+        })
     }
 };
 

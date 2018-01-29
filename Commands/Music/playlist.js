@@ -1,5 +1,18 @@
 exports.run = async (client, message, args, level) => {
 
+    let list = '';
+    client.audio.playlist.forEach((data, index) => {
+        list += `[${index += 1}]: ${data.title}\n`;
+    });
+    message.channel.send({
+        "embed": {
+            "title": "Playlist",
+            "description": list,
+            "footer": {
+                "text": `Now playing: ${client.audio.stream.name}`
+            }
+        }
+    });
 };
 
 exports.init = (client) => {
@@ -16,7 +29,7 @@ exports.conf = {
 
 exports.help = {
 
-    name: "",
+    name: "playlist",
     catergory: "",
     description: "",
     usage: ""
