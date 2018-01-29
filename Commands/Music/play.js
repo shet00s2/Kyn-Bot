@@ -23,6 +23,15 @@ exports.run = async (client, message, args, level) => {
         });
     }
 
+    const endPlayStream = (reason) => {
+        
+        client.audio.channel.audio.leave();
+        client.audio.dispatcher.end()
+        client.audio.playlist = [];
+
+        if (reason) message.channel.send(reason);
+    };
+
     if (!args[0]) {
 
         message.channel.send(`Please enter a URL or search term`);
@@ -54,6 +63,9 @@ exports.run = async (client, message, args, level) => {
         url = args[0];
     }
 
+
+    //[Bug] Doing !music play !music play {url} breaks the bot
+    //      Need a way to make sure bad input is rejected without crashing code
     if (!client.lib.youtube.validateURL(url)) return false
 
     const song = await require('util').promisify(client.lib.youtube.getInfo)(url);
@@ -64,7 +76,7 @@ exports.run = async (client, message, args, level) => {
         thumbnail: song.thumbnail_url
     });
 
-    if (!client.audio.dispatcher) {
+    if (client.audio.playlist.length === 1) {
 
         //If the dispatcher is null, join the room and begin playing
         client.audio.channel.audio.join().then((connection) => {
@@ -77,29 +89,18 @@ exports.run = async (client, message, args, level) => {
     
                     case 'skip':
     
-                        if (client.audio.playlist[0] === undefined) {
-
-                            //[BUG] Doesnt always seem to work
-
-                            console.log('here');
-                            client.audio.channel.audio.leave();
-                            client.audio.dispatcher.end()
-                            client.audio.playlist = [];
-                        }
+                        if (client.audio.playlist.length === 0) endPlayStream();
                         else playSong(connection)
                         break;
                     
                     case 'stop': 
 
-                        client.audio.channel.audio.leave();
-                        client.audio.channel.text.send(`Music stopped.`);
-                        client.audio.playlist = [];
+                        endPlayStream("Music stopped.")
                         break;
 
                     default:
 
-                        client.audio.channel.audio.leave();
-                        client.audio.playlist = [];
+                        endPlayStream();
                         break;
                 }
             });

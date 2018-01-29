@@ -16,7 +16,7 @@ module.exports = (client) => {
             return `Loaded ${command} successfully!`;
         } catch (error) {
 
-            return `Unable to load command ${command}: ${error}`;
+            return `[ERROR] Unable to load command ${command}: ${error}`;
         }
     };
 

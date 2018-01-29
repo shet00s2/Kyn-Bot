@@ -1,6 +1,6 @@
 const config = {
 
-    "token": "TOKEN_HERE",
+    "token": "MjQ5MDAwMDA0NzM0Mjg3ODgy.DUv09g.LQjLrvsuayYHPeo9aF4qVpkbh38",
     "prefix": "!"
 };
 
