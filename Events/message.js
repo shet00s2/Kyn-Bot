@@ -16,7 +16,7 @@ module.exports = (client, message) => {
     message.delete().then((message) => {
         
         message.channel.startTyping();
-        cmd.run(client, message, args, level = 10);
+        cmd.run(client, message, args, level = 1);
         message.channel.stopTyping();
     });
 };

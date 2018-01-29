@@ -13,7 +13,8 @@ exports.run = async (client, message, args, level) => {
 exports.conf = {
 
     enabled: true,
-    aliases: ['fl']
+    aliases: ['fl'],
+    permLevel: 10
 };
 
 exports.help = {

@@ -1,10 +1,6 @@
 exports.run = async (client, message, args, level) => {
 
-};
-
-exports.init = (client) => {
-    //This code is run when the command is loaded
-    
+    client.audio.dispatcher.end('skip');
 };
 
 exports.conf = {
@@ -16,7 +12,7 @@ exports.conf = {
 
 exports.help = {
 
-    name: "",
+    name: "skip",
     catergory: "",
     description: "",
     usage: ""

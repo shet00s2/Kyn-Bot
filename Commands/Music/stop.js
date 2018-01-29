@@ -1,5 +1,6 @@
 exports.run = async (client, message, args, level) => {
 
+    client.audio.dispatcher.end('stop');
 };
 
 exports.init = (client) => {
@@ -16,7 +17,7 @@ exports.conf = {
 
 exports.help = {
 
-    name: "",
+    name: "stop",
     catergory: "",
     description: "",
     usage: ""

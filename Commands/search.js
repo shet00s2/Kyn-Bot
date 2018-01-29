@@ -14,7 +14,7 @@ exports.run = async (client, message, args, level) => {
         json: true
     }
 
-    client.request(options, (error, response, body) => {
+    client.lib.request(options, (error, response, body) => {
 
         if (error) {
 
@@ -59,13 +59,16 @@ exports.run = async (client, message, args, level) => {
 
 exports.init = (client) => {
 
-    if (!client.request) client.request = require('request');
+    client.lib = {
+        request: require('request')
+    };
 }
 
 exports.conf = {
 
     enabled: true,
-    aliases: []
+    aliases: [],
+    permLevel: 1
 };
 
 exports.help = {

@@ -1,7 +1,10 @@
 const config = {
 
-    "token": "TOKEN_HERE",
-    "prefix": "!"
+    token: "DISCORD_KEY",
+    prefix: "!",
+    gapi: {
+        key: "GOOGLE_KEY"
+    }
 };
 
 module.exports = config;
