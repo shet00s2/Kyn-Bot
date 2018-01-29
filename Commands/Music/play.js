@@ -6,15 +6,6 @@ exports.run = async (client, message, args, level) => {
         return false;
     }
 
-    const playSong = (song) => {
-        
-
-    };
-
-    const queueSong = (url) => {
-
-    };
-
     if (!client.audio.dispatcher) {
 
         if (!message.member.voiceChannel) return
@@ -29,26 +20,63 @@ exports.run = async (client, message, args, level) => {
     let url;
 
     if (args.length > 1) {
+
         //If args length > 1, then the input is a search with multiple words
-        
-        url = args[0];
+
     }
 
     else {
-        //Otherwise its a url
 
+        //Otherwise its a url
+        url = args[0];
     }
 
-    validateAndRun();
+    if (!client.lib.youtube.validateURL(url)) return false
 
+    const song = await require('util').promisify(client.lib.youtube.getInfo)(url);
+    client.audio.playlist.push({
+        title: song.title,
+        url: url,
+        length: client.util.toHHMMSS(song.length_seconds),
+        thumbnail: song.thumbnail_url
+    });
+
+    if (!client.audio.dispatcher) {
+
+        //If the dispatcher is null, join the room and begin playing
+        client.audio.channel.audio.join().then((connection) => {
+            
+            client.audio.connection = connection;
+            client.audio.stream = client.lib.youtube(client.audio.playlist.shift().url, {filter: 'audioonly'});
+            client.audio.dispatcher = client.audio.connection.playStream(client.audio.stream);
+            
+            client.audio.dispatcher.on('end', (reason) => {
+    
+                switch(reason) {
+    
+                    case 'skip':
+    
+                        if (client.audio.playlist[1] === undefined) client.audio.dispatcher.end();
+                        else playSong()
+                        break;
+                    
+                    case 'stop': 
+
+                        client.audio.channel.audio.leave();                        
+                        break;
+
+                    default:
+
+                        client.audio.channel.audio.leave();
+                        break;
+                }
+            });
+        });
+    }
 };
 
 exports.init = (client) => {
 
-    client.lib = {
-        request: require('request'),
-        youtube: require('ytdl-core')
-    };
 };
 
 exports.conf = {

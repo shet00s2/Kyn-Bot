@@ -30,9 +30,15 @@ exports.init = async (client) => {
         },
         connection: null,
         dispatcher: null,
-        playlist: null,
+        playlist: [],
         stream: null
     };
+
+    client.lib = {
+        request: require('request'),
+        youtube: require('ytdl-core')
+    };
+
     client.music = {
         commands: new Enmap()
     };
