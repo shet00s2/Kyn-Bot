@@ -1,9 +1,9 @@
 const config = {
 
-    token: "DISCORD_KEY",
+    token: "",
     prefix: "!",
     gapi: {
-        key: "GOOGLE_KEY"
+        key: ""
     }
 };
 
