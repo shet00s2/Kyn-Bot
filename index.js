@@ -4,27 +4,25 @@ const {promisify} = require('util');
 const Enmap = require("enmap");
 const EnmapLevel = require("enmap-level");
 
-const readdir = promisify(require('fs').readdir);
-
-const client = new Discord.Client();
+const client = new Proxy(new Discord.Client(), require('./handler.js'));
 
 require("./functions.js")(client);
-client.config = require('./config.js');
 
+client.config = require('./config.js');
 client.commands = new Enmap();
 client.aliases = new Enmap();
 
 const init = async () => {
 
-    const cmdFiles = await readdir('./Commands');
-    cmdFiles.forEach(cmd => {
+    const cmdFiles = await client.util.readdir('./Commands');
+    cmdFiles.forEach((cmd) => {
 
         if (!cmd.endsWith('.js')) return;
-        const response = client.loadCommand(cmd);
-        if (response) console.log(response);
+        const response = client.loadCommand(cmd, './Commands', 'main');
+        if (response) console.log(`[Main] ${response}`);
     });
 
-    const evtFiles = await readdir('./Events/');
+    const evtFiles = await client.util.readdir('./Events/');
     evtFiles.forEach(file => {
 
         let eventName = file.split('.')[0];
