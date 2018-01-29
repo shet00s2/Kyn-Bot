@@ -54,7 +54,20 @@ exports.run = async (client, message, args, level) => {
     if (args.length > 1) {
 
         //If args length > 1, then the input is a search with multiple words
+        const api = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=${args.join('')}&type=video&videoCategoryId=10&key=${client.config.gapi.key}`;
+        const data = await client.util.request(api);
 
+        console.log(data);
+
+        if (data instanceof Error) {
+            
+            message.channel.send(data.message);
+            return false;
+        }
+        else {
+            
+            url = `https://www.youtube.com/watch?v=${data.items[0].id.videoId}`;
+        }
     }
 
     else {
@@ -63,10 +76,13 @@ exports.run = async (client, message, args, level) => {
         url = args[0];
     }
 
-
     //[Bug] Doing !music play !music play {url} breaks the bot
     //      Need a way to make sure bad input is rejected without crashing code
-    if (!client.lib.youtube.validateURL(url)) return false
+    if (!client.lib.youtube.validateURL(url)) {
+
+        message.channel.send("Something went wrong with your request");
+        return false;
+    }
 
     const song = await require('util').promisify(client.lib.youtube.getInfo)(url);
     client.audio.playlist.push({

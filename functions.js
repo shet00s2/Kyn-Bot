@@ -46,6 +46,23 @@ module.exports = (client) => {
             }));
         },
 
-        readdir: require('util').promisify(require('fs').readdir)
+        readdir: require('util').promisify(require('fs').readdir),
+        request: async (url) => {
+            
+            let body;
+
+            try {
+
+                ({body} = await require('util').promisify(require('request'))({url: url, json: true}));
+                if (body === 'Not Found') throw new Error();
+            }
+
+            catch(error) {
+
+                return Error('This search returned no results');
+            }
+
+            return body;
+        }
     }
 };

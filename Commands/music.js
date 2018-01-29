@@ -35,7 +35,6 @@ exports.init = async (client) => {
     };
 
     client.lib = {
-        request: require('request'),
         youtube: require('ytdl-core')
     };
 
