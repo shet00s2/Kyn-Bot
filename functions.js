@@ -13,7 +13,7 @@ module.exports = (client) => {
 
                 client.aliases.set(alias, props.help.name);
             });
-            return `Loaded ${command} successfully!`;
+            //return `Loaded ${command} successfully!`;
         } catch (error) {
 
             return `[ERROR] Unable to load command ${command}: ${error}`;
@@ -63,6 +63,10 @@ module.exports = (client) => {
             }
 
             return body;
+        },
+        promisify: (func) => {
+            
+            return require('util').promisify(func)
         }
     }
 };

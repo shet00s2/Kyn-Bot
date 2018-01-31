@@ -3,6 +3,7 @@ const {promisify} = require('util');
 
 const Enmap = require("enmap");
 const EnmapLevel = require("enmap-level");
+const storage = require('node-persist');
 
 const client = new Proxy(new Discord.Client(), require('./handler.js'));
 
@@ -13,6 +14,19 @@ client.commands = new Enmap();
 client.aliases = new Enmap();
 
 const init = async () => {
+
+    storage.initSync({
+        dir: './data',
+        stringify: JSON.stringify,
+        parse: JSON.parse,
+        encoding: 'utf8',
+        logging: false,
+        continous: true,
+        ttl: false,
+        expiredInterval: 2 * 60 * 1000
+    });
+
+    client.lib = {storage: storage};
 
     const cmdFiles = await client.util.readdir('./Commands');
     cmdFiles.forEach((cmd) => {

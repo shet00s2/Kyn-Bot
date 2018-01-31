@@ -58,4 +58,8 @@ typings/
 .env
 
 # Ignore config file
-/config.js
+config.js
+
+# Ignore servers
+/data
+config.js
